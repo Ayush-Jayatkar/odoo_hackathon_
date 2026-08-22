@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -122,7 +123,10 @@ export function TopBar({ user }: TopBarProps) {
                         </Button>
                     } />
                     <DropdownMenuContent className="w-80 max-h-[400px] overflow-y-auto" align="end">
-                        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                        {/* plain div — DropdownMenuLabel needs Group context */}
+                        <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            Notifications
+                        </div>
                         <DropdownMenuSeparator />
                         {notifications.length === 0 ? (
                             <div className="p-4 text-center text-sm text-muted-foreground">
@@ -157,13 +161,15 @@ export function TopBar({ user }: TopBarProps) {
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent className="w-56" align="end">
-                        {/* User info */}
-                        <DropdownMenuLabel>
-                            <div className="flex flex-col gap-0.5">
-                                <p className="text-sm font-medium">{user.name}</p>
-                                <p className="text-xs text-muted-foreground">{user.email}</p>
-                            </div>
-                        </DropdownMenuLabel>
+                        {/* User info — must be inside DropdownMenuGroup for Label to work */}
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="text-sm font-medium">{user.name}</p>
+                                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                                </div>
+                            </DropdownMenuLabel>
+                        </DropdownMenuGroup>
 
                         <DropdownMenuSeparator />
 
