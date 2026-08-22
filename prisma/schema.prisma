@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("EMPLOYEE")
+  department   String?
+  position     String?
+  phone        String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+
+  attendance    AttendanceRecord[]
+  leaveRequests LeaveRequest[]     @relation("LeaveRequester")
+  reviewedLeave LeaveRequest[]     @relation("LeaveReviewer")
+}
+
+model AttendanceRecord {
+  id       String    @id @default(cuid())
+  userId   String
+  date     String
+  clockIn  DateTime?
+  clockOut DateTime?
+  status   String    @default("PRESENT")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model LeaveRequest {
+  id           String   @id @default(cuid())
+  userId       String
+  type         String
+  startDate    String
+  endDate      String
+  reason       String
+  status       String   @default("PENDING")
+  reviewedById String?
+  reviewNote   String?
+  createdAt    DateTime @default(now())
+
+  user       User  @relation("LeaveRequester", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy User? @relation("LeaveReviewer", fields: [reviewedById], references: [id])
+}
