@@ -36,7 +36,7 @@ export function middleware(request: NextRequest) {
             const payload = decodeJwt(token)
             if (payload) {
                 if (payload.role === 'ADMIN') {
-                    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+                    return NextResponse.redirect(new URL('/admin', request.url))
                 }
                 return NextResponse.redirect(new URL('/dashboard', request.url))
             }
@@ -66,7 +66,7 @@ export function middleware(request: NextRequest) {
     // Root redirect
     if (pathname === '/') {
         if (payload.role === 'ADMIN') {
-            return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+            return NextResponse.redirect(new URL('/admin', request.url))
         }
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
