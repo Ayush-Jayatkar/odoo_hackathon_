@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dayflow-dev-secret'
 const COOKIE_NAME = 'dayflow_token'
-const COOKIE_MAX_AGE = 60 * 60 * 8 // 8 hours
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
 export interface JWTPayload {
     userId: string
@@ -22,7 +22,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 export function signToken(payload: JWTPayload): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' })
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
 }
 
 export function verifyToken(token: string): JWTPayload | null {
