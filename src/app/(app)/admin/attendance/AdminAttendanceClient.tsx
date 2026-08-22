@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Search, Download, CalendarOff } from 'lucide-react'
 
 interface AttendanceRecord {
     id: string
@@ -52,10 +54,38 @@ export function AdminAttendanceClient({
         return matchesSearch && matchesDept && matchesDate
     })
 
+    const handleDownloadCSV = () => {
+        const headers = ['Date', 'Employee ID', 'Name', 'Department', 'Check In', 'Check Out', 'Status']
+        const csvRows = [headers.join(',')]
+
+        filteredRecords.forEach((record) => {
+            const date = new Date(record.date).toLocaleDateString('en-IN')
+            const empId = record.user.employeeId
+            const name = `"${record.user.profile?.fullName || ''}"`
+            const dept = `"${record.user.profile?.department || ''}"`
+            const checkIn = record.checkIn ? new Date(record.checkIn).toLocaleTimeString('en-IN') : ''
+            const checkOut = record.checkOut ? new Date(record.checkOut).toLocaleTimeString('en-IN') : ''
+            const status = record.status
+
+            csvRows.push([date, empId, name, dept, checkIn, checkOut, status].join(','))
+        })
+
+        const csvString = csvRows.join('\n')
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Attendance_Report_${new Date().toISOString().slice(0, 10)}.csv`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+
     return (
         <Card className="shadow-soft">
-            <div className="p-4 border-b flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1 max-w-sm">
+            <div className="p-4 border-b flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <div className="relative flex-1 w-full max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search employee..."
@@ -64,7 +94,7 @@ export function AdminAttendanceClient({
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <Select value={department} onValueChange={setDepartment}>
+                <Select value={department} onValueChange={(v) => setDepartment(v ?? 'ALL')}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Department" />
                     </SelectTrigger>
@@ -81,8 +111,14 @@ export function AdminAttendanceClient({
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
                 />
+                <div className="flex-1 hidden md:block" />
+                <Button variant="outline" onClick={handleDownloadCSV} className="w-full md:w-auto shrink-0">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download CSV
+                </Button>
             </div>
             <CardContent className="p-0">
+                <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -97,8 +133,12 @@ export function AdminAttendanceClient({
                     <TableBody>
                         {filteredRecords.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                                    No attendance records found.
+                                <TableCell colSpan={6} className="p-0">
+                                    <EmptyState
+                                        icon={CalendarOff}
+                                        title="No attendance records found"
+                                        description="Try adjusting your search, department, or date filters."
+                                    />
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -130,6 +170,7 @@ export function AdminAttendanceClient({
                         )}
                     </TableBody>
                 </Table>
+                </div>
             </CardContent>
         </Card>
     )

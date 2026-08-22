@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 const signupSchema = z.object({
     employeeId: z.string().min(1, 'Employee ID is required'),
@@ -25,6 +26,7 @@ export default function SignupPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [apiError, setApiError] = useState('')
     const [verifyMode, setVerifyMode] = useState(false)
     const [verifyEmail, setVerifyEmail] = useState('')
     const [devCode, setDevCode] = useState('')
@@ -33,6 +35,7 @@ export default function SignupPage() {
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setErrors({})
+        setApiError('')
 
         const formData = new FormData(e.currentTarget)
         const data = Object.fromEntries(formData.entries())
@@ -41,7 +44,7 @@ export default function SignupPage() {
         if (!result.success) {
             const formattedErrors: Record<string, string> = {}
             result.error.issues.forEach((issue) => {
-                formattedErrors[issue.path[0]] = issue.message
+                formattedErrors[String(issue.path[0])] = issue.message
             })
             setErrors(formattedErrors)
             return
@@ -58,7 +61,7 @@ export default function SignupPage() {
             const resData = await res.json()
 
             if (!res.ok) {
-                toast.error(resData.error)
+                setApiError(resData.error || 'Signup failed. Please try again.')
                 return
             }
 
@@ -131,8 +134,8 @@ export default function SignupPage() {
                                     disabled={loading}
                                 />
                             </div>
-                            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                                {loading ? 'Verifying...' : 'Verify Account'}
+                            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11" disabled={loading}>
+                                {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying…</> : 'Verify Account'}
                             </Button>
                         </form>
                     </CardContent>
@@ -173,9 +176,12 @@ export default function SignupPage() {
                             <Input id="password" name="password" type="password" disabled={loading} />
                             {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
                         </div>
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                            {loading ? 'Creating account...' : 'Create Account'}
+                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11" disabled={loading}>
+                            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating account…</> : 'Create Account'}
                         </Button>
+                        {apiError && (
+                            <p className="text-sm text-center text-destructive">{apiError}</p>
+                        )}
                     </form>
                 </CardContent>
                 <CardFooter className="flex justify-center border-t p-4 mt-2">

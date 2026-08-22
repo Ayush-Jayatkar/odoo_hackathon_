@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { EmptyState } from '@/components/ui/empty-state'
+import { CalendarX, Loader2 } from 'lucide-react'
 
 const STATUS_COLORS: Record<string, string> = {
     APPROVED: 'bg-[var(--meadow)]/10 text-[var(--meadow)]',
@@ -122,8 +124,8 @@ export function LeaveClient({ records }: { records: any[] }) {
                             {errors.remarks && <p className="text-xs text-destructive">{errors.remarks}</p>}
                         </div>
 
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                            {loading ? 'Submitting...' : 'Submit Request'}
+                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11" disabled={loading}>
+                            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting…</> : 'Submit Request'}
                         </Button>
                     </form>
                 </CardContent>
@@ -135,6 +137,7 @@ export function LeaveClient({ records }: { records: any[] }) {
                     <CardTitle className="text-lg">Leave History</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
+                    <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -147,8 +150,12 @@ export function LeaveClient({ records }: { records: any[] }) {
                         <TableBody>
                             {records.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                                        No leave requests found.
+                                    <TableCell colSpan={4} className="p-0">
+                                        <EmptyState
+                                            icon={CalendarX}
+                                            title="No leave requests yet"
+                                            description="Submit your first leave request using the form on the left."
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -172,6 +179,7 @@ export function LeaveClient({ records }: { records: any[] }) {
                             )}
                         </TableBody>
                     </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { z } from 'zod'
+import { Resend } from 'resend'
 
 const patchSchema = z.object({
     status: z.enum(['APPROVED', 'REJECTED']),
@@ -16,7 +17,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json()
     const result = patchSchema.safeParse(body)
     if (!result.success) {
-        return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 })
+        return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
     }
 
     const { status, adminComment } = result.data
@@ -36,7 +37,37 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
             reviewedById: session.userId,
             reviewedAt: new Date(),
         },
+        include: {
+            user: { include: { profile: true } },
+        },
     })
+
+    // 1. Create in-app notification
+    await prisma.notification.create({
+        data: {
+            userId: updatedLeave.userId,
+            message: `Your leave request from ${new Date(updatedLeave.startDate).toLocaleDateString('en-IN')} to ${new Date(updatedLeave.endDate).toLocaleDateString('en-IN')} was ${status.toLowerCase()}.`,
+            type: status === 'APPROVED' ? 'LEAVE_APPROVED' : 'LEAVE_REJECTED',
+        }
+    })
+
+    // 2. Optional Email Alert (fails silently if no API key)
+    if (process.env.RESEND_API_KEY) {
+        try {
+            const resend = new Resend(process.env.RESEND_API_KEY)
+            const userName = updatedLeave.user.profile?.fullName ?? 'Employee'
+            await resend.emails.send({
+                from: 'Dayflow HRMS <onboarding@resend.dev>',
+                to: updatedLeave.user.email,
+                subject: `Leave Request ${status}`,
+                html: `<p>Hi ${userName},</p>
+                       <p>Your leave request has been <strong>${status}</strong>.</p>
+                       ${adminComment ? `<p>Admin Comment: ${adminComment}</p>` : ''}`
+            })
+        } catch (e) {
+            console.error('Failed to send Resend email:', e)
+        }
+    }
 
     // If approved, create matching Attendance rows with status LEAVE
     if (status === 'APPROVED') {

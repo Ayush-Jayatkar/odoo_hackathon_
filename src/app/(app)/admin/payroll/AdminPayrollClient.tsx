@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search, Save, Pencil, X } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Search, Save, Pencil, X, Banknote, Loader2 } from 'lucide-react'
 
 const formatINR = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -81,6 +82,7 @@ export function AdminPayrollClient({ employees }: { employees: any[] }) {
                 </div>
             </div>
             <CardContent className="p-0">
+                <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -96,8 +98,12 @@ export function AdminPayrollClient({ employees }: { employees: any[] }) {
                     <TableBody>
                         {filteredEmployees.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                                    No employees found.
+                                <TableCell colSpan={7} className="p-0">
+                                    <EmptyState
+                                        icon={Banknote}
+                                        title="No employees found"
+                                        description="Try adjusting your search term."
+                                    />
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -148,7 +154,7 @@ export function AdminPayrollClient({ employees }: { employees: any[] }) {
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
                                                         <Button size="icon" variant="ghost" className="h-8 w-8 text-[var(--meadow)]" onClick={() => handleSave(emp.id)} disabled={saving}>
-                                                            <Save className="h-4 w-4" />
+                                                            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                                         </Button>
                                                         <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={cancelEdit} disabled={saving}>
                                                             <X className="h-4 w-4" />
@@ -175,6 +181,7 @@ export function AdminPayrollClient({ employees }: { employees: any[] }) {
                         )}
                     </TableBody>
                 </Table>
+                </div>
             </CardContent>
         </Card>
     )

@@ -67,7 +67,7 @@ export function PayrollClient({ salaryData }: { salaryData: SalaryData }) {
 
         doc.line(20, 130, 190, 130)
 
-        doc.setFont(undefined, 'bold')
+        doc.setFont('helvetica', 'bold')
         doc.text('Net Salary', 20, 140)
         doc.text(formatINRPdf(salaryData.netSalary), 150, 140)
 

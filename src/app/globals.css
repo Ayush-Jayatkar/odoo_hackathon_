@@ -102,3 +102,55 @@
 .flow-line {
   background: linear-gradient(90deg, var(--dawn) 0%, var(--midday) 50%, var(--dusk) 100%);
 }
+
+/* ───────────────────────────────────
+   Keyboard Focus Ring (Accessibility)
+─────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--midday);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ───────────────────────────────────
+   Page / Route Transition
+─────────────────────────────────── */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: page-in 200ms ease-out both;
+}
+
+/* ───────────────────────────────────
+   Interactive Card Hover
+─────────────────────────────────── */
+.card-hover {
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 20px rgba(20, 23, 43, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ───────────────────────────────────
+   Check-in Button
+─────────────────────────────────── */
+.checkin-btn {
+  transition: background-color 180ms ease, transform 150ms ease, box-shadow 180ms ease;
+}
+.checkin-btn:not(:disabled):hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(34, 160, 107, 0.4);
+}
+.checkin-btn:not(:disabled):active {
+  transform: scale(0.98);
+}

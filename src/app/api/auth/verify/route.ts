@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         const result = verifySchema.safeParse(body)
 
         if (!result.success) {
-            return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 })
+            return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
         }
 
         const { email, code } = result.data

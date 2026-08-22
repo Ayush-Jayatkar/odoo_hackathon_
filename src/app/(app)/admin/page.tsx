@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { FlowLine } from '@/components/ui/flow-line'
-import { Users, CalendarCheck, CalendarOff, Building2, ChevronRight, Clock, CheckSquare, Banknote } from 'lucide-react'
+import { Users, CalendarCheck, CalendarOff, Building2, ChevronRight, Clock, CheckSquare, Banknote, BarChart3 } from 'lucide-react'
 
 async function getAdminDashboardData() {
     const now = new Date()
@@ -99,6 +99,14 @@ export default async function AdminHomePage() {
             color: 'var(--dusk)',
             bg: 'color-mix(in srgb, var(--dusk) 10%, transparent)',
         },
+        {
+            title: 'Analytics & Insights',
+            desc: 'View live visual reports on attendance, leave, and department metrics.',
+            href: '/admin/analytics',
+            icon: BarChart3,
+            color: 'var(--midday)',
+            bg: 'color-mix(in srgb, var(--midday) 10%, transparent)',
+        },
     ]
 
     return (
@@ -123,7 +131,7 @@ export default async function AdminHomePage() {
                         <Link
                             key={stat.label}
                             href={stat.href}
-                            className="group bg-card rounded-xl shadow-soft p-5 flex flex-col gap-4 hover:scale-[1.02] transition-transform"
+                            className="group card-hover bg-card rounded-xl shadow-soft p-5 flex flex-col gap-4"
                         >
                             <div
                                 className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -148,12 +156,12 @@ export default async function AdminHomePage() {
             {/* Quick-access panels */}
             <div>
                 <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {quickPanels.map((panel) => (
                         <Link
                             key={panel.href}
                             href={panel.href}
-                            className="group bg-card rounded-xl shadow-soft p-6 flex flex-col gap-4 hover:scale-[1.01] transition-transform border border-transparent hover:border-border"
+                            className="group card-hover bg-card rounded-xl shadow-soft p-6 flex flex-col gap-4 border border-transparent hover:border-border"
                         >
                             <div className="flex items-center justify-between">
                                 <div

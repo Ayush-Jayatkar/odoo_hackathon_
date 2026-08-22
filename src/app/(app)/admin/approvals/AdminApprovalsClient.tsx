@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Check, X } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Check, X, ClipboardList, History } from 'lucide-react'
 
 const STATUS_COLORS: Record<string, string> = {
     APPROVED: 'bg-[var(--meadow)]/10 text-[var(--meadow)]',
@@ -42,6 +43,14 @@ export function AdminApprovalsClient({ records }: { records: any[] }) {
     }
 
     const renderTable = (data: any[], isPending: boolean) => (
+        data.length === 0 ? (
+            <EmptyState
+                icon={isPending ? ClipboardList : History}
+                title={isPending ? 'No pending requests' : 'No approval history yet'}
+                description={isPending ? 'All leave requests have been reviewed.' : 'Approved and rejected requests will appear here.'}
+            />
+        ) : (
+        <div className="overflow-x-auto">
         <Table>
             <TableHeader>
                 <TableRow>
@@ -53,77 +62,72 @@ export function AdminApprovalsClient({ records }: { records: any[] }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.length === 0 ? (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                            No {isPending ? 'pending' : 'historical'} leave requests found.
+                {data.map((record) => (
+                    <TableRow key={record.id}>
+                        <TableCell>
+                            <div className="flex flex-col">
+                                <span className="font-medium">{record.user.profile?.fullName}</span>
+                                <span className="text-xs text-muted-foreground">{record.user.employeeId}</span>
+                            </div>
+                        </TableCell>
+                        <TableCell className="capitalize">{record.leaveType.toLowerCase()}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                            {new Date(record.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} –{' '}
+                            {new Date(record.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                        </TableCell>
+                        <TableCell className="max-w-xs truncate" title={record.remarks}>
+                            {record.remarks || '—'}
+                        </TableCell>
+                        <TableCell>
+                            {isPending ? (
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        placeholder="Comment (optional)"
+                                        className="h-8 text-xs w-32"
+                                        value={comments[record.id] || ''}
+                                        onChange={(e) => setComments({ ...comments, [record.id]: e.target.value })}
+                                        disabled={loadingId === record.id}
+                                    />
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        className="h-8 w-8 text-[var(--meadow)] hover:text-[var(--meadow)] hover:bg-[var(--meadow)]/10"
+                                        onClick={() => handleAction(record.id, 'APPROVED')}
+                                        disabled={loadingId === record.id}
+                                    >
+                                        <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        className="h-8 w-8 text-[var(--rose)] hover:text-[var(--rose)] hover:bg-[var(--rose)]/10"
+                                        onClick={() => handleAction(record.id, 'REJECTED')}
+                                        disabled={loadingId === record.id}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-1">
+                                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full w-fit ${STATUS_COLORS[record.status]}`}>
+                                        {record.status}
+                                    </span>
+                                    {record.adminComment && (
+                                        <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={record.adminComment}>
+                                            {record.adminComment}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </TableCell>
                     </TableRow>
-                ) : (
-                    data.map((record) => (
-                        <TableRow key={record.id}>
-                            <TableCell>
-                                <div className="flex flex-col">
-                                    <span className="font-medium">{record.user.profile?.fullName}</span>
-                                    <span className="text-xs text-muted-foreground">{record.user.employeeId}</span>
-                                </div>
-                            </TableCell>
-                            <TableCell className="capitalize">{record.leaveType.toLowerCase()}</TableCell>
-                            <TableCell>
-                                {new Date(record.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} -
-                                {new Date(record.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                            </TableCell>
-                            <TableCell className="max-w-xs truncate" title={record.remarks}>
-                                {record.remarks || '—'}
-                            </TableCell>
-                            <TableCell>
-                                {isPending ? (
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            placeholder="Comment (optional)"
-                                            className="h-8 text-xs w-32"
-                                            value={comments[record.id] || ''}
-                                            onChange={(e) => setComments({ ...comments, [record.id]: e.target.value })}
-                                            disabled={loadingId === record.id}
-                                        />
-                                        <Button
-                                            size="icon"
-                                            variant="outline"
-                                            className="h-8 w-8 text-[var(--meadow)] hover:text-[var(--meadow)] hover:bg-[var(--meadow)]/10"
-                                            onClick={() => handleAction(record.id, 'APPROVED')}
-                                            disabled={loadingId === record.id}
-                                        >
-                                            <Check className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon"
-                                            variant="outline"
-                                            className="h-8 w-8 text-[var(--rose)] hover:text-[var(--rose)] hover:bg-[var(--rose)]/10"
-                                            onClick={() => handleAction(record.id, 'REJECTED')}
-                                            disabled={loadingId === record.id}
-                                        >
-                                            <X className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-1">
-                                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full w-fit ${STATUS_COLORS[record.status]}`}>
-                                            {record.status}
-                                        </span>
-                                        {record.adminComment && (
-                                            <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={record.adminComment}>
-                                                {record.adminComment}
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </TableCell>
-                        </TableRow>
-                    ))
-                )}
+                ))}
             </TableBody>
         </Table>
+        </div>
+        )
     )
+
 
     return (
         <div className="space-y-6">

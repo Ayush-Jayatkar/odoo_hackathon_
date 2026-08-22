@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         const result = signupSchema.safeParse(body)
 
         if (!result.success) {
-            return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 })
+            return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
         }
 
         const { employeeId, email, password, fullName } = result.data
@@ -57,6 +57,22 @@ export async function POST(req: Request) {
                 },
             },
         })
+
+        // Notify all admins about the new employee
+        const admins = await prisma.user.findMany({
+            where: { role: 'ADMIN' },
+            select: { id: true },
+        })
+
+        if (admins.length > 0) {
+            await prisma.notification.createMany({
+                data: admins.map((admin) => ({
+                    userId: admin.id,
+                    message: `New employee joined: ${fullName} (${employeeId})`,
+                    type: 'NEW_EMPLOYEE',
+                })),
+            })
+        }
 
         return NextResponse.json(
             {

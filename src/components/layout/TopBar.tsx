@@ -1,7 +1,8 @@
 'use client'
 
-import { Bell, LogOut, Moon, Sun } from 'lucide-react'
+import { Bell, LogOut, Moon, Sun, CheckCircle, XCircle, UserPlus, Info } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,9 +24,57 @@ interface TopBarProps {
     }
 }
 
+interface Notification {
+    id: string
+    message: string
+    type: string
+    read: boolean
+    createdAt: string
+}
+
 export function TopBar({ user }: TopBarProps) {
     const { setTheme, theme } = useTheme()
     const router = useRouter()
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const [unreadCount, setUnreadCount] = useState(0)
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+    useEffect(() => {
+        fetch('/api/notifications')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.notifications) {
+                    setNotifications(data.notifications)
+                    setUnreadCount(data.notifications.filter((n: Notification) => !n.read).length)
+                }
+            })
+            .catch((err) => console.error('Failed to fetch notifications:', err))
+    }, [])
+
+    const handleNotificationsOpen = (open: boolean) => {
+        setIsDropdownOpen(open)
+        if (open && unreadCount > 0) {
+            fetch('/api/notifications', { method: 'PATCH' })
+                .then(() => {
+                    setUnreadCount(0)
+                    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+                })
+                .catch((err) => console.error('Failed to mark notifications read:', err))
+        }
+    }
+
+    const getNotificationIcon = (type: string) => {
+        switch (type) {
+            case 'LEAVE_APPROVED':
+                return <CheckCircle className="w-4 h-4 text-[var(--meadow)]" />
+            case 'LEAVE_REJECTED':
+                return <XCircle className="w-4 h-4 text-[var(--rose)]" />
+            case 'NEW_EMPLOYEE':
+                return <UserPlus className="w-4 h-4 text-primary" />
+            default:
+                return <Info className="w-4 h-4 text-muted-foreground" />
+        }
+    }
 
     const handleLogout = async () => {
         try {
@@ -61,10 +110,41 @@ export function TopBar({ user }: TopBarProps) {
             {/* Right actions */}
             <div className="flex items-center gap-3">
                 {/* Notification bell */}
-                <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--rose)]" />
-                </Button>
+                <DropdownMenu onOpenChange={handleNotificationsOpen}>
+                    <DropdownMenuTrigger render={
+                        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+                            <Bell className="w-5 h-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold text-white bg-[var(--rose)] rounded-full border-2 border-card">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </Button>
+                    } />
+                    <DropdownMenuContent className="w-80 max-h-[400px] overflow-y-auto" align="end">
+                        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {notifications.length === 0 ? (
+                            <div className="p-4 text-center text-sm text-muted-foreground">
+                                No notifications yet.
+                            </div>
+                        ) : (
+                            notifications.map((notif) => (
+                                <DropdownMenuItem key={notif.id} className="flex flex-col items-start gap-1 p-3 cursor-default focus:bg-transparent">
+                                    <div className="flex items-center gap-2">
+                                        {getNotificationIcon(notif.type)}
+                                        <span className={`text-sm ${notif.read ? 'text-muted-foreground' : 'font-medium'}`}>
+                                            {notif.message}
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] text-muted-foreground ml-6">
+                                        {new Date(notif.createdAt).toLocaleString('en-IN')}
+                                    </span>
+                                </DropdownMenuItem>
+                            ))
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
                 {/* Avatar dropdown */}
                 <DropdownMenu>

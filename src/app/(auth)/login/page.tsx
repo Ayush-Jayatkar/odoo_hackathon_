@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -19,10 +20,12 @@ export default function LoginPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [apiError, setApiError] = useState('')
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setErrors({})
+        setApiError('')
 
         const formData = new FormData(e.currentTarget)
         const email = formData.get('email') as string
@@ -32,7 +35,7 @@ export default function LoginPage() {
         if (!result.success) {
             const formattedErrors: Record<string, string> = {}
             result.error.issues.forEach((issue) => {
-                formattedErrors[issue.path[0]] = issue.message
+                formattedErrors[String(issue.path[0])] = issue.message
             })
             setErrors(formattedErrors)
             return
@@ -49,10 +52,7 @@ export default function LoginPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                toast.error(data.error)
-                if (data.requiresVerification) {
-                    // Could redirect to a verify page, but for now just show error
-                }
+                setApiError(data.error || 'Login failed. Please try again.')
                 return
             }
 
@@ -91,9 +91,12 @@ export default function LoginPage() {
                             <Input id="password" name="password" type="password" disabled={loading} />
                             {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                         </div>
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                            {loading ? 'Signing in...' : 'Sign in'}
+                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11" disabled={loading}>
+                            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in…</> : 'Sign in'}
                         </Button>
+                        {apiError && (
+                            <p className="text-sm text-center text-destructive">{apiError}</p>
+                        )}
                     </form>
                 </CardContent>
                 <CardFooter className="flex justify-center border-t p-4 mt-2">

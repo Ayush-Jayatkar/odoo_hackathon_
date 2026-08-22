@@ -17,7 +17,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ userId
     const body = await req.json()
     const result = salarySchema.safeParse(body)
     if (!result.success) {
-        return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 })
+        return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
     }
 
     const { baseSalary, allowances, deductions } = result.data

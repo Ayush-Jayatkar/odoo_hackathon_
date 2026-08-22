@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Search, ArrowRight } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Search, ArrowRight, Users } from 'lucide-react'
 
 interface Employee {
     id: string
@@ -102,6 +103,7 @@ export function EmployeesClient({
             </div>
 
             <CardContent className="p-0">
+                <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -115,8 +117,12 @@ export function EmployeesClient({
                     <TableBody>
                         {filtered.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                                    No employees match your search.
+                                <TableCell colSpan={5} className="p-0">
+                                    <EmptyState
+                                        icon={Users}
+                                        title="No employees found"
+                                        description={search || deptFilter !== 'ALL' ? 'Try adjusting your search or department filter.' : 'No employees have been added yet.'}
+                                    />
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -169,6 +175,7 @@ export function EmployeesClient({
                         )}
                     </TableBody>
                 </Table>
+                </div>
                 {filtered.length > 0 && (
                     <div className="px-4 py-3 border-t text-xs text-muted-foreground">
                         Showing {filtered.length} of {employees.length} employee{employees.length !== 1 ? 's' : ''}

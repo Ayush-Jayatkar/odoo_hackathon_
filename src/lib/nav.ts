@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarCheck, CalendarOff, Banknote, User, Users, CheckSquare, Home } from 'lucide-react'
+import { LayoutDashboard, CalendarCheck, CalendarOff, Banknote, User, Users, CheckSquare, Home, BarChart3 } from 'lucide-react'
 
 export type NavItem = {
     title: string
@@ -48,6 +48,12 @@ export const navItems: NavItem[] = [
         title: 'Approvals',
         href: '/admin/approvals',
         icon: CheckSquare,
+        roles: ['ADMIN'],
+    },
+    {
+        title: 'Analytics',
+        href: '/admin/analytics',
+        icon: BarChart3,
         roles: ['ADMIN'],
     },
     {

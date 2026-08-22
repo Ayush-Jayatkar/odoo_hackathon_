@@ -107,16 +107,24 @@ export function AttendanceClient({
 
                     <div className="w-full space-y-3">
                         {!todayRecord?.checkIn ? (
-                            <Button onClick={handleCheckIn} disabled={loading} className="w-full bg-[var(--meadow)] hover:bg-[var(--meadow)]/90 text-white h-12 text-lg">
-                                Check In
+                            <Button
+                                onClick={handleCheckIn}
+                                disabled={loading}
+                                className="checkin-btn w-full bg-[var(--meadow)] hover:bg-[var(--meadow)]/90 text-white h-12 text-lg font-semibold"
+                            >
+                                {loading ? 'Checking in…' : '✓ Check In'}
                             </Button>
                         ) : !todayRecord?.checkOut ? (
-                            <Button onClick={handleCheckOut} disabled={loading} className="w-full bg-[var(--dawn)] hover:bg-[var(--dawn)]/90 text-white h-12 text-lg">
-                                Check Out
+                            <Button
+                                onClick={handleCheckOut}
+                                disabled={loading}
+                                className="checkin-btn w-full bg-[var(--dawn)] hover:bg-[var(--dawn)]/90 text-white h-12 text-lg font-semibold"
+                            >
+                                {loading ? 'Checking out…' : '↩ Check Out'}
                             </Button>
                         ) : (
-                            <div className="w-full bg-secondary text-secondary-foreground text-center py-3 rounded-md font-medium">
-                                Completed for today
+                            <div className="w-full bg-[var(--meadow)]/10 text-[var(--meadow)] border border-[var(--meadow)]/30 text-center py-3 rounded-md font-medium flex items-center justify-center gap-2">
+                                <span>✓</span> Completed for today
                             </div>
                         )}
                     </div>
