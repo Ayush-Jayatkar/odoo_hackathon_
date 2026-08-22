@@ -89,3 +89,37 @@ Use these seeded accounts to test the application flows:
 
 ### Admin Employee Management
 ![Employee Management](./screenshots/2_admin_employees.png)
+
+🏆 Odoo Hackathon
+
+Dayflow was developed as a project for the Odoo Hackathon.
+
+The project focuses on bringing employee-facing and administrator-facing HR workflows together into a single, straightforward portal.
+
+The goal is to reduce the friction of common HR operations by providing a centralized interface for:
+
+Employee attendance
+Leave requests
+Payslips
+Employee management
+Attendance oversight
+HR analytics
+Administrative approvals
+
+📜 License
+
+No license information is specified in the provided project documentation.
+Refer to the repository for the current licensing information.
+
+🔒 Security Considerations
+
+For development and demonstration purposes, Dayflow uses seeded accounts and local configuration.
+
+When deploying or extending the application:
+
+Keep secrets in environment variables.
+Do not commit .env files containing sensitive values.
+Do not expose private API credentials to the browser.
+Use a strong, unique JWT_SECRET.
+Do not reuse the demo credentials in a production environment.
+Ensure administrative functionality remains protected by appropriate authorization.
