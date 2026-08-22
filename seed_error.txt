@@ -1,0 +1,70 @@
+﻿node.exe : C:\Users\acer\Documents\odoo_hackat
+hon_project\node_modules\@prisma\client\src\ru
+ntime\getPrismaClient.ts:390
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Users\acer\AppData\Roaming\n ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( 
+   C:\Users\acer\D...maClient.ts:390:String)  
+   [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandEr 
+   ror
+ 
+        throw new 
+PrismaClientInitializationError(
+              ^
+PrismaClientInitializationError: PrismaClient 
+was instantiated without any options. A 
+driver adapter is required to connect to your 
+database.
+
+Pass a driver adapter to the PrismaClient 
+constructor, for example:
+
+  import { PrismaPg } from 
+'@prisma/adapter-pg'
+  import { PrismaClient } from 
+'./generated/prisma/client'
+
+  const adapter = new PrismaPg({ 
+connectionString: process.env.DATABASE_URL })
+  const prisma = new PrismaClient({ adapter })
+
+Learn more about driver adapters: 
+https://pris.ly/d/driver-adapters
+
+If you use Prisma Accelerate instead of 
+connecting to your database directly, pass 
+`accelerateUrl` to the PrismaClient 
+constructor instead of `adapter`.
+    at new t (C:\Users\acer\Documents\odoo_hac
+kathon_project\node_modules\@prisma\client\src
+\runtime\getPrismaClient.ts:390:15)
+    at Object.<anonymous> (C:\Users\acer\Docum
+ents\odoo_hackathon_project\prisma\seed.ts:4:1
+6)
+    at Module._compile 
+(node:internal/modules/cjs/loader:1688:14)
+    at Module.m._compile (C:\Users\acer\Docume
+nts\odoo_hackathon_project\node_modules\ts-nod
+e\src\index.ts:1618:23)
+    at 
+node:internal/modules/cjs/loader:1820:10
+    at Object.require.extensions.<computed> 
+[as .ts] (C:\Users\acer\Documents\odoo_hackath
+on_project\node_modules\ts-node\src\index.ts:1
+621:12)
+    at Module.load 
+(node:internal/modules/cjs/loader:1423:32)
+    at Function._load 
+(node:internal/modules/cjs/loader:1246:12)
+    at TracingChannel.traceSync 
+(node:diagnostics_channel:322:14)
+    at wrapModuleLoad 
+(node:internal/modules/cjs/loader:235:24) {
+  clientVersion: '7.9.1',
+  errorCode: undefined,
+  retryable: undefined
+}

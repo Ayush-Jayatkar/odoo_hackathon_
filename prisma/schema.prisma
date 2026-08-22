@@ -4,50 +4,86 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         String   @default("EMPLOYEE")
-  department   String?
-  position     String?
-  phone        String?
-  avatarUrl    String?
-  createdAt    DateTime @default(now())
+  id             String   @id @default(cuid())
+  employeeId     String   @unique
+  email          String   @unique
+  passwordHash   String
+  role           String   @default("EMPLOYEE")
+  emailVerified  Boolean  @default(false)
+  verifyCode     String?
+  createdAt      DateTime @default(now())
 
-  attendance    AttendanceRecord[]
-  leaveRequests LeaveRequest[]     @relation("LeaveRequester")
-  reviewedLeave LeaveRequest[]     @relation("LeaveReviewer")
+  profile        Profile?
+  attendance     Attendance[]
+  leaveRequests  LeaveRequest[]  @relation("EmployeeLeaves")
+  reviewedLeaves LeaveRequest[]  @relation("ReviewerLeaves")
+  salary         Salary?
+  notifications  Notification[]
 }
 
-model AttendanceRecord {
-  id       String    @id @default(cuid())
-  userId   String
-  date     String
-  clockIn  DateTime?
-  clockOut DateTime?
-  status   String    @default("PRESENT")
+model Profile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  fullName      String
+  phone         String?
+  address       String?
+  profilePicUrl String?
+  jobTitle      String?
+  department    String?
+  dateOfJoining DateTime?
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Attendance {
+  id       String           @id @default(cuid())
+  userId   String
+  user     User             @relation(fields: [userId], references: [id])
+  date     DateTime
+  checkIn  DateTime?
+  checkOut DateTime?
+  status   String @default("PRESENT")
 
   @@unique([userId, date])
 }
 
 model LeaveRequest {
-  id           String   @id @default(cuid())
+  id           String      @id @default(cuid())
   userId       String
-  type         String
-  startDate    String
-  endDate      String
-  reason       String
-  status       String   @default("PENDING")
+  user         User        @relation("EmployeeLeaves", fields: [userId], references: [id])
+  leaveType    String
+  startDate    DateTime
+  endDate      DateTime
+  remarks      String?
+  status       String @default("PENDING")
+  adminComment String?
   reviewedById String?
-  reviewNote   String?
-  createdAt    DateTime @default(now())
-
-  user       User  @relation("LeaveRequester", fields: [userId], references: [id], onDelete: Cascade)
-  reviewedBy User? @relation("LeaveReviewer", fields: [reviewedById], references: [id])
+  reviewedBy   User?       @relation("ReviewerLeaves", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  createdAt    DateTime    @default(now())
 }
+
+model Salary {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  baseSalary    Float
+  allowances    Float    @default(0)
+  deductions    Float    @default(0)
+  effectiveDate DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+
